@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { Suspense } from "react";
 import { getCategories } from "@/lib/products";
 import { Noto_Sans_Thai } from "next/font/google";
@@ -21,6 +22,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="th">
       <body className={`${font.className} flex min-h-dvh flex-col bg-surface text-ink antialiased`}>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-PW8PS8G5W1" strategy="afterInteractive" />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-PW8PS8G5W1');`}
+        </Script>
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2">
           ข้ามไปเนื้อหา
         </a>
