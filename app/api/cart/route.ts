@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db'
 import { findCartId, getOrCreateCartId } from '@/lib/cart'
+import { rateLimit } from '@/lib/rate-limit'
 import type { CartItem } from '@/lib/types'
 
 const MAX_INT = 2147483647 // ขอบบนของ integer ใน Postgres
@@ -43,6 +44,9 @@ export async function GET() {
 
 // เพิ่มสินค้า (บวกจำนวนเข้าของเดิม)
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'cart', 60, 60)
+  if (limited) return limited
+
   const body = await readBody(request, true)
   if (!body) return badRequest('productId and quantity must be positive integers')
 
@@ -68,6 +72,9 @@ export async function POST(request: Request) {
 
 // ตั้งจำนวนใหม่ (ทับของเดิม)
 export async function PATCH(request: Request) {
+  const limited = await rateLimit(request, 'cart', 60, 60)
+  if (limited) return limited
+
   const body = await readBody(request, true)
   if (!body) return badRequest('productId and quantity must be positive integers')
 
@@ -89,6 +96,9 @@ export async function PATCH(request: Request) {
 
 // ลบสินค้าออกจากตะกร้า
 export async function DELETE(request: Request) {
+  const limited = await rateLimit(request, 'cart', 60, 60)
+  if (limited) return limited
+
   const body = await readBody(request, false)
   if (!body) return badRequest('productId must be a positive integer')
 

@@ -1,4 +1,5 @@
 import { sql } from '@/lib/db'
+import { rateLimit } from '@/lib/rate-limit'
 
 function text(v: unknown, max: number): string | null {
   if (typeof v !== 'string') return null
@@ -8,6 +9,9 @@ function text(v: unknown, max: number): string | null {
 
 // รับข้อความจากฟอร์มหน้าติดต่อ แล้วเก็บลงตาราง contact_messages
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'contact', 5, 600)
+  if (limited) return limited
+
   const body: unknown = await request.json().catch(() => null)
   const f = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>
   const name = text(f.name, 200)

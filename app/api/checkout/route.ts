@@ -1,6 +1,7 @@
 import { Client } from '@neondatabase/serverless'
 import { randomUUID } from 'node:crypto'
 import { findCartId } from '@/lib/cart'
+import { rateLimit } from '@/lib/rate-limit'
 
 type Line = { product_id: number; name: string; price: number; stock: number; quantity: number }
 
@@ -13,6 +14,9 @@ function text(v: unknown, max: number): string | null {
 // สร้าง order (pending) จากตะกร้า ตัดสต็อก แล้วล้างตะกร้า ทั้งหมดใน transaction เดียว
 // ราคาทั้งหมดเป็นสตางค์
 export async function POST(request: Request) {
+  const limited = await rateLimit(request, 'checkout', 10, 600)
+  if (limited) return limited
+
   const body: unknown = await request.json().catch(() => null)
   const { customerName, address } = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>
   const name = text(customerName, 200)
@@ -30,6 +34,21 @@ export async function POST(request: Request) {
   await client.connect()
   try {
     await client.query('begin')
+
+    // ออเดอร์ pending ที่ยังไม่เลือกวิธีจ่ายเกิน 30 นาที = ยกเลิกแล้วคืนสต็อก (COD มี payment_method แล้ว จึงไม่โดน)
+    // update ... returning ทำให้ request ที่ชนกันไม่คืนสต็อกซ้ำ
+    await client.query(
+      `with expired as (
+         update orders set status = 'cancelled'
+         where status = 'pending' and payment_method is null and created_at < now() - interval '30 minutes'
+         returning id
+       ), back as (
+         select oi.product_id, sum(oi.quantity)::int as qty
+         from order_items oi join expired e on e.id = oi.order_id
+         group by oi.product_id
+       )
+       update products p set stock = p.stock + back.qty from back where p.id = back.product_id`
+    )
 
     // lock แถวสินค้า (เรียงตาม id กัน deadlock) ระหว่าง checkout พร้อมกันจะได้ไม่ตัดสต็อกเกิน
     const { rows: lines } = await client.query<Line>(
