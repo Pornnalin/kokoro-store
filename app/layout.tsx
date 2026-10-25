@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { getCategories } from "@/lib/products";
 import { Noto_Sans_Thai } from "next/font/google";
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="th">
       <body className={`${font.className} flex min-h-dvh flex-col bg-surface text-ink antialiased`}>
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-PW8PS8G5W1" strategy="afterInteractive" />
+        <Analytics />
         <Script id="gtag-init" strategy="afterInteractive">
           {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-PW8PS8G5W1');`}
         </Script>
