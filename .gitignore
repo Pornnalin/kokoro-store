@@ -39,3 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ไม่ขึ้น repo: ไฟล์อ้างอิงดีไซน์/เอกสารเรียนรู้ (ขนาดใหญ่ ไม่ใช่โค้ด) และค่าเฉพาะเครื่อง
+/stitch_online_stationery_store_web/
+/*.pdf
+/.claude/settings.local.json
