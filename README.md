@@ -6,7 +6,23 @@
 
 **Demo:** https://kokoro-store.vercel.app
 
-<!-- ใส่ screenshot หรือ GIF ของ flow สินค้า → ตะกร้า → จ่ายเงิน -->
+## ภาพหน้าจอ
+
+| หน้าแรก | สินค้าทั้งหมด |
+| --- | --- |
+| ![หน้าแรก](docs/screenshots/home.png) | ![สินค้าทั้งหมด](docs/screenshots/products.png) |
+
+![รายละเอียดสินค้า](docs/screenshots/product.png)
+
+### ขั้นตอนสั่งซื้อและจ่ายเงิน
+
+| ตะกร้า | ข้อมูลจัดส่ง |
+| --- | --- |
+| ![ตะกร้า](docs/screenshots/cart.png) | ![ข้อมูลจัดส่ง](docs/screenshots/checkout.png) |
+
+| เลือกวิธีชำระเงิน | เสร็จสิ้น |
+| --- | --- |
+| ![เลือกวิธีชำระเงิน](docs/screenshots/payment.png) | ![ชำระเงินสำเร็จ](docs/screenshots/success.png) |
 
 ## Tech stack
 
