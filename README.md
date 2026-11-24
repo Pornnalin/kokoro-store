@@ -90,7 +90,7 @@ npm run dev
 
 ### ฐานข้อมูล
 
-โค้ดใช้ตาราง `categories`, `products`, `cart_items`, `orders`, `order_items` และ `rate_limits` ผู้ที่ clone ไปรันต้องสร้างตารางเหล่านี้เอง
+สร้างตารางด้วยไฟล์ [`db/schema.sql`](db/schema.sql) (รันใน Neon SQL Editor หรือ `psql "$DATABASE_URL" -f db/schema.sql`) ตารางที่มี: `categories`, `products`, `carts`, `cart_items`, `orders`, `order_items`, `contact_messages` และ `rate_limits` ไฟล์นี้สร้างเฉพาะโครงตาราง ต้องเพิ่มข้อมูลหมวดและสินค้าเอง
 
 ## โครงสร้างโปรเจ็ค
 
