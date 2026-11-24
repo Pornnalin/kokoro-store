@@ -87,6 +87,7 @@ npm run dev
 | `npm run build` | build สำหรับ production |
 | `npm run start` | รัน production build |
 | `npm run lint` | ตรวจโค้ดด้วย ESLint |
+| `TEST_BASE_URL=http://localhost:3000 npm test` | integration test ของ checkout (สร้างออเดอร์จริง ใช้กับฐานข้อมูลทดสอบเท่านั้น) |
 
 ### ฐานข้อมูล
 
