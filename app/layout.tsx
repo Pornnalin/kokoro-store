@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Script from "next/script";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import { getCategories } from "@/lib/products";
 import { Noto_Sans_Thai } from "next/font/google";
 import { CartLink } from "./cart-link";
+import { CookieConsent, CookieSettingsButton } from "./cookie-consent";
 import { NavLinks } from "./nav-links";
 import "./globals.css";
 
@@ -23,11 +23,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="th">
       <body className={`${font.className} flex min-h-dvh flex-col bg-surface text-ink antialiased`}>
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-PW8PS8G5W1" strategy="afterInteractive" />
         <Analytics />
-        <Script id="gtag-init" strategy="afterInteractive">
-          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-PW8PS8G5W1');`}
-        </Script>
+        <CookieConsent />
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2">
           ข้ามไปเนื้อหา
         </a>
@@ -81,9 +78,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 </ul>
               </div>
             </div>
-            <p className="mt-10 border-t border-ink-soft/10 pt-6 text-xs text-quiet">
-              © 2025 KOKORO 文具 STORE · โปรเจ็คตัวอย่างสำหรับพอร์ตโฟลิโอ ชำระเงินจำลอง ไม่มีการตัดเงินจริง
-            </p>
+            <div className="mt-10 flex flex-wrap items-center justify-between gap-x-6 border-t border-ink-soft/10 pt-6 text-xs text-quiet">
+              <p>© 2025 KOKORO 文具 STORE · โปรเจ็คตัวอย่างสำหรับพอร์ตโฟลิโอ ชำระเงินจำลอง ไม่มีการตัดเงินจริง</p>
+              <CookieSettingsButton />
+            </div>
           </div>
         </footer>
       </body>
