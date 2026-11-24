@@ -4,7 +4,7 @@
 
 > การจ่ายเงินเป็นการ**จำลอง** ไม่ได้เชื่อมต่อ payment gateway จริง
 
-**Demo:** https://nextjs-store-tan.vercel.app
+**Demo:** https://kokoro-store.vercel.app
 
 <!-- ใส่ screenshot หรือ GIF ของ flow สินค้า → ตะกร้า → จ่ายเงิน -->
 
