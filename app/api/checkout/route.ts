@@ -2,6 +2,7 @@ import { Client } from '@neondatabase/serverless'
 import { randomUUID } from 'node:crypto'
 import { findCartId } from '@/lib/cart'
 import { rateLimit } from '@/lib/rate-limit'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 type Line = { product_id: number; name: string; price: number; stock: number; quantity: number }
 
@@ -18,12 +19,16 @@ export async function POST(request: Request) {
   if (limited) return limited
 
   const body: unknown = await request.json().catch(() => null)
-  const { customerName, address } = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>
+  const fields = (typeof body === 'object' && body !== null ? body : {}) as Record<string, unknown>
+  const { customerName, address } = fields
   const name = text(customerName, 200)
   const addr = text(address, 1000)
   if (!name || !addr) {
     return Response.json({ error: 'customerName (<= 200) and address (<= 1000) are required' }, { status: 400 })
   }
+
+  const blocked = await verifyTurnstile(fields['cf-turnstile-response'], request)
+  if (blocked) return blocked
 
   const cartId = await findCartId()
   if (!cartId) return Response.json({ error: 'Cart is empty' }, { status: 400 })

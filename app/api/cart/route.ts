@@ -1,7 +1,7 @@
 import { sql } from '@/lib/db'
 import { findCartId, getOrCreateCartId } from '@/lib/cart'
 import { rateLimit } from '@/lib/rate-limit'
-import type { CartItem } from '@/lib/types'
+import { MAX_PER_ITEM, type CartItem } from '@/lib/types'
 
 const MAX_INT = 2147483647 // ขอบบนของ integer ใน Postgres
 
@@ -38,6 +38,13 @@ async function getStock(productId: number) {
 
 const badRequest = (error: string) => Response.json({ error }, { status: 400 })
 
+// เกินสต็อกหรือเกินเพดานต่อรายการ คืน 409 ทั้งคู่
+function overLimit(quantity: number, stock: number) {
+  if (quantity > MAX_PER_ITEM) return Response.json({ error: `Max ${MAX_PER_ITEM} per item` }, { status: 409 })
+  if (quantity > stock) return Response.json({ error: 'Not enough stock' }, { status: 409 })
+  return null
+}
+
 export async function GET() {
   return Response.json(await readCart(await findCartId()))
 }
@@ -57,9 +64,8 @@ export async function POST(request: Request) {
   const [existing] = (await sql`
     select quantity from cart_items where cart_id = ${cartId} and product_id = ${body.productId}
   `) as { quantity: number }[]
-  if ((existing?.quantity ?? 0) + body.quantity > stock) {
-    return Response.json({ error: 'Not enough stock' }, { status: 409 })
-  }
+  const over = overLimit((existing?.quantity ?? 0) + body.quantity, stock)
+  if (over) return over
 
   await sql`
     insert into cart_items (cart_id, product_id, quantity)
@@ -83,7 +89,8 @@ export async function PATCH(request: Request) {
 
   const stock = await getStock(body.productId)
   if (stock === null) return Response.json({ error: 'Product not found' }, { status: 404 })
-  if (body.quantity > stock) return Response.json({ error: 'Not enough stock' }, { status: 409 })
+  const over = overLimit(body.quantity, stock)
+  if (over) return over
 
   const updated = await sql`
     update cart_items set quantity = ${body.quantity}

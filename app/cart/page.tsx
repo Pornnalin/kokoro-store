@@ -3,7 +3,7 @@
 import { ViewTransition, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { formatPrice } from '@/lib/format'
-import type { Cart } from '@/lib/types'
+import { MAX_PER_ITEM, type Cart } from '@/lib/types'
 import { notifyCartChanged } from '../cart-link'
 import { CartIcon, TrashIcon } from '../icons'
 import { ProductThumb } from '../product-thumb'
@@ -12,7 +12,7 @@ import { QuantityStepper, SectionLabel, btn } from '../ui'
 
 const ERRORS: Record<number, string> = {
   404: 'ไม่พบสินค้านี้ในตะกร้า ลองรีเฟรชหน้า',
-  409: 'สต็อกไม่พอสำหรับจำนวนนี้',
+  409: `สต็อกไม่พอ หรือเกิน ${MAX_PER_ITEM} ชิ้นต่อรายการ`,
 }
 
 export default function CartPage() {
@@ -76,7 +76,7 @@ export default function CartPage() {
                         <QuantityStepper
                           label={`จำนวน ${item.name}`}
                           value={item.quantity}
-                          max={item.stock}
+                          max={Math.min(item.stock, MAX_PER_ITEM)}
                           disabled={busyId !== null}
                           onChange={(quantity) => send('PATCH', { productId: item.product_id, quantity })}
                         />

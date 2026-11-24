@@ -58,6 +58,8 @@
 - **คืนสต็อกอัตโนมัติ:** ออเดอร์ที่ยังไม่เลือกวิธีจ่ายเกิน 30 นาทีจะถูกยกเลิกและคืนสต็อกตอน checkout ครั้งถัดไป โดยไม่ต้องมีตัวตั้งเวลา และไม่คืนซ้ำเมื่อคำขอชนกัน
 - **Rate limit:** นับต่อ IP แบบ fixed window เก็บใน Neon ไม่ต้องใช้บริการเพิ่ม
 - **ตะกร้าผูกกับ cookie** ไม่ต้องสมัครสมาชิก
+- **Demo ฟื้นตัวเอง:** จำกัด 5 ชิ้นต่อรายการ และ Vercel Cron วันละครั้งลบออเดอร์ที่เก่ากว่า 1 วัน ตะกร้าที่เก่ากว่า 7 วัน และเติมสต็อกให้ไม่ต่ำกว่า 50 (`app/api/cron/cleanup`)
+- **กันบอทด้วย Cloudflare Turnstile** ที่ checkout และฟอร์มติดต่อ ยืนยัน token ฝั่งเซิร์ฟเวอร์
 - **Validation ที่ขอบ API** และ security headers (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`)
 - SEO: `robots.ts`, `sitemap.ts`, metadata ต่อหน้า
 
@@ -73,6 +75,8 @@ npm install
 
 ```bash
 DATABASE_URL=postgres://user:password@host/dbname
+CRON_SECRET=สุ่มข้อความยาวๆ   # ใช้กับ cron ล้างข้อมูล demo (ตั้งใน Vercel ด้วย)
+TURNSTILE_SECRET_KEY=...       # Cloudflare Turnstile ใช้เฉพาะ production (dev ข้ามการยืนยัน)
 ```
 
 ```bash

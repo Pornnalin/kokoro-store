@@ -1,5 +1,6 @@
 import { sql } from '@/lib/db'
 import { rateLimit } from '@/lib/rate-limit'
+import { verifyTurnstile } from '@/lib/turnstile'
 
 function text(v: unknown, max: number): string | null {
   if (typeof v !== 'string') return null
@@ -22,6 +23,9 @@ export async function POST(request: Request) {
   if (!name || !phone || !/^[0-9+\-\s]{8,30}$/.test(phone) || f.consent !== true || !email || !subject || !message || !/^\S+@\S+\.\S+$/.test(email)) {
     return Response.json({ error: 'name, phone, email, subject, message and consent are required' }, { status: 400 })
   }
+
+  const blocked = await verifyTurnstile(f['cf-turnstile-response'], request)
+  if (blocked) return blocked
 
   await sql`insert into contact_messages (name, phone, email, subject, message, consent) values (${name}, ${phone}, ${email}, ${subject}, ${message}, true)`
   return Response.json({ ok: true }, { status: 201 })

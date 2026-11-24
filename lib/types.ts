@@ -1,3 +1,6 @@
+// จำนวนสูงสุดต่อสินค้าหนึ่งรายการในตะกร้า กันคนเดียว (หรือบอท) กวาดสต็อก demo จนหมด
+export const MAX_PER_ITEM = 5
+
 export type Category = {
   id: number
   slug: string

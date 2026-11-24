@@ -6,6 +6,7 @@ import { formatPrice } from '@/lib/format'
 import type { Cart } from '@/lib/types'
 import { notifyCartChanged } from '../cart-link'
 import { CheckIcon } from '../icons'
+import { Turnstile } from '../turnstile'
 import { Bone, SectionLabel, btn } from '../ui'
 
 type Method = 'promptpay' | 'card' | 'cod'
@@ -19,6 +20,7 @@ const METHODS: { value: Method; label: string; hint: string }[] = [
 
 const CHECKOUT_ERRORS: Record<number, string> = {
   400: 'กรุณากรอกชื่อและที่อยู่ให้ครบ (หรือตะกร้าว่าง)',
+  403: 'ยืนยันว่าไม่ใช่บอทไม่สำเร็จ ลองใหม่อีกครั้ง',
   409: 'สินค้าบางรายการสต็อกไม่พอ กรุณากลับไปแก้จำนวนในตะกร้า',
 }
 
@@ -31,6 +33,7 @@ export default function CheckoutPage() {
   const [order, setOrder] = useState<Order | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [attempt, setAttempt] = useState(0) // เปลี่ยนแล้ว Turnstile ขอ token ใหม่
 
   useEffect(() => {
     fetch('/api/cart')
@@ -45,13 +48,18 @@ export default function CheckoutPage() {
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ customerName: form.get('customerName'), address: form.get('address') }),
+      body: JSON.stringify({
+        customerName: form.get('customerName'),
+        address: form.get('address'),
+        'cf-turnstile-response': form.get('cf-turnstile-response'),
+      }),
     }).catch(() => null)
     if (res?.ok) {
       setOrder((await res.json()) as Order)
       notifyCartChanged({ items: [], total: 0 })
     } else {
       setError((res && CHECKOUT_ERRORS[res.status]) ?? 'สั่งซื้อไม่สำเร็จ ลองใหม่อีกครั้ง')
+      setAttempt((n) => n + 1)
     }
     setBusy(false)
   }
@@ -113,7 +121,8 @@ export default function CheckoutPage() {
                 <p id="address-help" className="mt-1.5 text-xs text-quiet">บ้านเลขที่ ถนน แขวง/ตำบล เขต/อำเภอ จังหวัด รหัสไปรษณีย์</p>
               </div>
             </div>
-            <button type="submit" disabled={busy} className={`${btn.primary} mt-8 w-full`}>
+            <div className="mt-6"><Turnstile key={attempt} /></div>
+            <button type="submit" disabled={busy} className={`${btn.primary} mt-6 w-full`}>
               {busy ? 'กำลังสั่งซื้อ...' : `ยืนยันคำสั่งซื้อ (${formatPrice(cart.total)})`}
             </button>
             <Link href="/cart" className="mt-3 flex min-h-11 items-center justify-center text-sm text-muted underline-offset-4 hover:underline">← กลับไปแก้ไขตะกร้า</Link>

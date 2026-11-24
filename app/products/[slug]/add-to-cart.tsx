@@ -2,14 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import type { Cart } from '@/lib/types'
+import { MAX_PER_ITEM, type Cart } from '@/lib/types'
 import { notifyCartChanged } from '../../cart-link'
 import { CartIcon, CheckIcon } from '../../icons'
 import { QuantityStepper, btn } from '../../ui'
 
 const ERRORS: Record<number, string> = {
   404: 'ไม่พบสินค้านี้ ลองรีเฟรชหน้า',
-  409: 'สต็อกไม่พอ (นับรวมกับที่อยู่ในตะกร้าแล้ว) ลองลดจำนวนลง',
+  409: `สต็อกไม่พอ หรือเกิน ${MAX_PER_ITEM} ชิ้นต่อรายการ (นับรวมกับที่อยู่ในตะกร้าแล้ว) ลองลดจำนวนลง`,
 }
 
 export function AddToCart({ productId, stock }: { productId: number; stock: number }) {
@@ -40,7 +40,7 @@ export function AddToCart({ productId, stock }: { productId: number; stock: numb
     <div className="mt-8 border-t border-ink-soft/10 pt-6">
       <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-quiet">จำนวน</p>
       <div className="flex flex-wrap items-center gap-3">
-        <QuantityStepper label="จำนวนสินค้า" value={quantity} max={stock} onChange={setQuantity} disabled={busy} />
+        <QuantityStepper label="จำนวนสินค้า" value={quantity} max={Math.min(stock, MAX_PER_ITEM)} onChange={setQuantity} disabled={busy} />
         <button onClick={add} disabled={busy} className={`${btn.primary} flex-1 sm:flex-none sm:px-10`}>
           <CartIcon className="size-4" />
           {busy ? 'กำลังเพิ่ม...' : 'เพิ่มลงตะกร้า'}

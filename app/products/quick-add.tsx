@@ -23,7 +23,7 @@ export function QuickAdd({ productId, stock, name }: { productId: number; stock:
       notifyCartChanged((await res.json()) as Cart)
       setState('done')
     } else {
-      setError(res?.status === 409 ? 'สต็อกไม่พอ' : 'ลองใหม่อีกครั้ง')
+      setError(res?.status === 409 ? 'สต็อกไม่พอหรือครบจำนวนสูงสุด' : 'ลองใหม่อีกครั้ง')
       setState('error')
     }
     setTimeout(() => setState('idle'), 2000)

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ArrowRightIcon, CheckIcon, ClockIcon } from '../icons'
+import { Turnstile } from '../turnstile'
 import { btn } from '../ui'
 
 const input = 'min-h-11 w-full rounded border border-ink-soft/15 bg-white px-3 text-base placeholder:text-quiet/60 focus:border-ink-soft'
@@ -22,15 +23,18 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 export function ContactForm() {
   const [state, setState] = useState<State>('idle')
   const [length, setLength] = useState(0)
+  const [attempt, setAttempt] = useState(0) // เปลี่ยนแล้ว Turnstile ขอ token ใหม่
 
   async function submit(form: FormData) {
     setState('busy')
+    // form มี cf-turnstile-response จาก widget อยู่แล้ว
     const res = await fetch('/api/contact', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ ...Object.fromEntries(form), consent: form.get('consent') === 'on' }),
     }).catch(() => null)
     setState(res?.ok ? 'done' : 'error')
+    setAttempt((n) => n + 1)
   }
 
   if (state === 'done') {
@@ -83,6 +87,7 @@ export function ContactForm() {
         <input type="checkbox" name="consent" required className="mt-1.5 size-4 shrink-0 accent-ink-soft" />
         ฉันยินยอมให้ KOKORO จัดเก็บและประมวลผลข้อมูลส่วนบุคคลข้างต้น เพื่อการติดต่อตอบกลับตามนโยบายความเป็นส่วนตัว
       </label>
+      <Turnstile key={attempt} />
       {state === 'error' && (
         <p role="alert" className="rounded bg-cinnabar-soft px-4 py-3 text-sm text-cinnabar">ส่งไม่สำเร็จ ตรวจข้อมูลแล้วลองอีกครั้ง</p>
       )}
